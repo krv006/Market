@@ -1,10 +1,15 @@
+from datetime import timedelta
+
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.db.models import Model, CharField, DecimalField, TextField, ForeignKey, CASCADE, ManyToManyField, \
+    PositiveIntegerField
+from django.utils.timezone import now
+
+from shared.model import TimeBasedModel, SlugBasedModel
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
-
+class Category(SlugBasedModel):
     class Meta:
         verbose_name = "Kategoriya"
         verbose_name_plural = "Kategoriyalar"
@@ -14,8 +19,8 @@ class Category(models.Model):
         return self.name
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=255, verbose_name="Teg nomi")
+class Tag(Model):
+    name = CharField(max_length=255, verbose_name="Teg nomi")
 
     class Meta:
         verbose_name = "Teg"
@@ -26,20 +31,20 @@ class Tag(models.Model):
         return self.name
 
 
-class Product(models.Model):
-    name = models.CharField(max_length=255, verbose_name="Mahsulot nomi")
-    price = models.DecimalField(
+class Product(TimeBasedModel):
+    name = CharField(max_length=255, verbose_name="Mahsulot nomi")
+    price = DecimalField(
         max_digits=9,
         decimal_places=2,
         validators=[MinValueValidator(0)],
         help_text='Narxini kiriting',
         verbose_name="Narxi"
     )
-    description = models.TextField(
+    description = TextField(
         help_text="Mahsulotni qisqacha ta'riflab bering",
         verbose_name="Ta'rif"
     )
-    price_percentage = models.DecimalField(
+    price_percentage = DecimalField(
         max_digits=5,
         decimal_places=2,
         default=0,
@@ -48,19 +53,19 @@ class Product(models.Model):
         validators=[MinValueValidator(0)],
         verbose_name="Chegirma foizi"
     )
-    quantity = models.PositiveIntegerField(
+    quantity = PositiveIntegerField(
         default=0,
         help_text="Mahsulot sonini kiriting",
         verbose_name="Miqdor"
     )
-    tags = models.ManyToManyField(
+    tags = ManyToManyField(
         'shops.Tag',
         related_name='products',
         verbose_name="Teglar"
     )
-    category = models.ForeignKey(
+    category = ForeignKey(
         'shops.Category',
-        on_delete=models.CASCADE,
+        CASCADE,
         related_name='products',
         verbose_name="Kategoriya"
     )
@@ -71,4 +76,16 @@ class Product(models.Model):
         ordering = 'name',
 
     def __str__(self):
-        return f"{self.name} - {self.price} so'm"
+        return f"({self.id}) - {self.name} - {self.price} so'm"
+
+    @property
+    def new_price(self):
+        return self.price * (100 - self.price_percentage) // 100
+
+    @property
+    def is_new(self) -> bool:
+        return self.created_at >= now() - timedelta(days=7)
+
+    @property
+    def sub_amount(self):
+        return self.price * self.quantity
