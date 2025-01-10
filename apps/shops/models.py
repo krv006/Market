@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-from django.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import Model, CharField, DecimalField, TextField, ForeignKey, CASCADE, ManyToManyField, \
     PositiveIntegerField
@@ -19,9 +18,7 @@ class Category(SlugBasedModel):
         return self.name
 
 
-class Tag(Model):
-    name = CharField(max_length=255, verbose_name="Teg nomi")
-
+class Tag(SlugBasedModel):
     class Meta:
         verbose_name = "Teg"
         verbose_name_plural = "Teglar"

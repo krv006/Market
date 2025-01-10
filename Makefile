@@ -8,7 +8,6 @@ admin:
 pip:
 	pip freeze > requirements.txt
 
-
 flush:
 	python3 manage.py flush --no-input
 
@@ -18,3 +17,6 @@ migdel:
 
 install:
 	pip install -r requirements.txt
+
+user:
+	python3 manage.py createsuperuser --email admin@gmail.com
