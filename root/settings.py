@@ -19,8 +19,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # my package
     'shops',
-    'users'
+    'users',
+    # three party package
+    'rest_framework',
+    'drf_spectacular',
+
 ]
 
 MIDDLEWARE = [
@@ -88,3 +93,5 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from root.drf_settings import *
